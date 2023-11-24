@@ -118,41 +118,29 @@ const deleteUser = async (req: Request, res: Response) => {
         res.status(200).json({
             success: true,
             message: "User deleted successfully",
-            data: null
+            data: null,
         });
     } catch (err: any) {
-        res.status(500).json({
-            success: false,
-            message: err.message || 'Something went wrong',
-            error: err,
-        });
+        if (err.status) {
+            res.status(err.status).json({
+                success: false,
+                message: err.message,
+                error: err.error,
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Something went wrong',
+                error: err,
+            });
+        }
     }
 
-}
+};
 
 
 
-// const addProductToOrder = async (req: Request, res: Response) => {
-//     try {
-//         const userId = Number(req.params.userId);
-//         const { orderData } = req.body;
-
-//         const result = await UserServices.addProductToOrder(userId, orderData);
-
-//         res.status(200).json({
-//             success: true,
-//             message: "Order created successfully!",
-//             data: result,
-//         });
-//     } catch (err: any) {
-//         res.status(500).json({
-//             success: false,
-//             message: err.message || 'Something went wrong',
-//             error: err,
-//         });
-//     }
-// };
-
+// Order's controller
 
 const addProductToOrder = async (req: Request, res: Response) => {
     try {

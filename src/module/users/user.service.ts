@@ -21,7 +21,7 @@ const allUsers = async () => {
 
 // Get single user
 const singleUser = async (userId: number) => {
-    const result = await User.findOne({ userId }).select('-_id');
+    const result = await User.findOne({ userId }).select('-_id -orders -__v');
 
     if (!result) {
         throw new Error("User not found");
@@ -35,6 +35,7 @@ const updateUser = async (userId: number, userData: Partial<TUser>): Promise<TUs
     const result = await User.findOneAndUpdate({ userId: userId }, userData, {
         new: true,
         runValidators: true,
+        select:  '-_id -orders -__v'
     });
 
     if (!result) {
@@ -52,15 +53,23 @@ const deleteUser = async (userId: number) => {
     const result = await User.findOneAndDelete({ userId });
 
     if (!result) {
-        throw new Error("User not found");
+        throw {
+            status: 404,
+            message: "User not found",
+            error: {
+                code: 404,
+                description: "User not found!",
+            },
+        };
     }
+
+
     return result;
 }
 
 
 
 // For adding new orders
-
 const addProductToOrder = async (userId: number, orderData: TOrder): Promise<TUser | null> => {
     const user = await User.findOne({ userId });
 
@@ -75,12 +84,10 @@ const addProductToOrder = async (userId: number, orderData: TOrder): Promise<TUs
         };
     }
 
-    // Check if the user has 'orders' array, if not, create it
     if (!user.orders) {
         user.orders = [];
     }
 
-    // Add the product to the user's order
     user.orders.push({ ...orderData });
 
     const result = await user.save();
