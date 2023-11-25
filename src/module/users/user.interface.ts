@@ -24,7 +24,7 @@ export type TUser = {
     fullName: TUserName;
     age: number;
     email: string;
-    isActive: 'active' | 'inactive';
+    isActive: boolean;
     hobbies: string[];
     address: TUserAdress;
     orders?: TOrder[] | undefined;
@@ -34,6 +34,7 @@ export type TUser = {
 
 // instance methods
 export type UserMethods = {
+    // eslint-disable-next-line no-unused-vars
     isUserExist(userId: number): Promise<TUser | null>
 }
 

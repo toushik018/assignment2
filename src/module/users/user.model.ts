@@ -34,8 +34,7 @@ const userSchema = new Schema<TUser, UserModel, UserMethods>({
     age: { type: Number, required: [true, 'Age is required'] },
     email: { type: String, required: [true, 'Email is required'], unique: true },
     isActive: {
-        type: String,
-        enum: ['active', 'inactive'],
+        type: Boolean,
         required: [true, 'Status is required'],
     },
     hobbies: { type: [String], default: [] },
@@ -74,8 +73,6 @@ userSchema.methods.toJSON = function () {
     delete userObject.password;
     return userObject;
 };
-
-
 
 
 

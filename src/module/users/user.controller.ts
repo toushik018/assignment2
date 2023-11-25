@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import { UserServices } from "./user.service";
 import userValidationSchema from "./user.validation";
+import { z } from "zod";
 
 
 const createUser = async (req: Request, res: Response) => {
@@ -17,11 +18,20 @@ const createUser = async (req: Request, res: Response) => {
             data: result
         });
     } catch (err: any) {
-        res.status(500).json({
-            success: false,
-            message: err.message || 'Something went wrong',
-            error: err,
-        });
+        if (err instanceof z.ZodError) {
+            const Error = err.format();
+            res.status(400).json({
+                success: false,
+                message: 'Validation error',
+                error: Error,
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: err.message || 'Something went wrong',
+                error: err,
+            });
+        }
     }
 
 }
@@ -147,12 +157,12 @@ const addProductToOrder = async (req: Request, res: Response) => {
         const userId = Number(req.params.userId);
         const { orderData } = req.body;
 
-        const result = await UserServices.addProductToOrder(userId, orderData);
+        await UserServices.addProductToOrder(userId, orderData);
 
         res.status(200).json({
             success: true,
             message: "Order created successfully!",
-            data: result,
+            data: null,
         });
     } catch (err: any) {
         if (err.status) {
@@ -172,6 +182,70 @@ const addProductToOrder = async (req: Request, res: Response) => {
 };
 
 
+// Orders for specific user
+const ordersForSpecificUser = async (req: Request, res: Response) => {
+    try {
+        const userId = Number(req.params.userId);
+        const orders = await UserServices.ordersForSpecificUser(userId);
+
+        res.status(200).json({
+            success: true,
+            message: "Order fetched successfully!",
+            data: orders,
+        });
+    } catch (err: any) {
+        if (err.message === 'User not found') {
+            res.status(404).json({
+                success: false,
+                message: 'User not found',
+                error: {
+                    code: 404,
+                    description: 'User not found!',
+                },
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: err.message || 'Something went wrong',
+                error: err,
+            });
+        }
+    }
+};
+
+
+// Calculate the price for a specific user of orders
+
+const calculatePrice = async (req: Request, res: Response) => {
+    try {
+        const userId = Number(req.params.userId);
+        const totalPrice = await UserServices.calculatePrice(userId);
+
+        res.status(200).json({
+            success: true,
+            message: "Total price calculated successfully!",
+            data: { totalPrice },
+        });
+    } catch (err: any) {
+        if (err.message === 'User not found') {
+            res.status(404).json({
+                success: false,
+                message: 'User not found',
+                error: {
+                    code: 404,
+                    description: 'User not found!',
+                },
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: err.message || 'Something went wrong',
+                error: err,
+            });
+        }
+    }
+};
+
 
 
 export const UserController = {
@@ -180,5 +254,7 @@ export const UserController = {
     singleUser,
     updateUser,
     deleteUser,
-    addProductToOrder
+    addProductToOrder,
+    ordersForSpecificUser,
+    calculatePrice
 }

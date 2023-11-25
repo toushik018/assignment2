@@ -35,7 +35,7 @@ const updateUser = async (userId: number, userData: Partial<TUser>): Promise<TUs
     const result = await User.findOneAndUpdate({ userId: userId }, userData, {
         new: true,
         runValidators: true,
-        select:  '-_id -orders -__v'
+        select: '-_id -orders -__v'
     });
 
     if (!result) {
@@ -74,7 +74,7 @@ const addProductToOrder = async (userId: number, orderData: TOrder): Promise<TUs
     const user = await User.findOne({ userId });
 
     if (!user) {
-        throw { 
+        throw {
             status: 404,
             message: "User not found",
             error: {
@@ -95,6 +95,65 @@ const addProductToOrder = async (userId: number, orderData: TOrder): Promise<TUs
 };
 
 
+// Orders for specific users
+
+const ordersForSpecificUser = async (userId: number): Promise<TOrder[] | null> => {
+    const user = await User.findOne({ userId });
+
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    return user?.orders || null;
+}
+
+
+
+// Calculate the price for a specific user of orders
+
+const calculatePrice = async (userId: number): Promise<number | null> => {
+    const user = await User.findOne({ userId });
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    const orders = await User.aggregate([
+        {
+            $match: {
+                userId: userId,
+            },
+        },
+        {
+            $unwind: {
+                path: "$orders",
+                preserveNullAndEmptyArrays: true,
+            },
+        },
+        {
+            $group: {
+                _id: "$userId",
+                totalPrice: {
+                    $sum: {
+                        $multiply: [
+                            { $ifNull: ["$orders.price", 0] },
+                            { $ifNull: ["$orders.quantity", 0] },
+                        ],
+                    },
+                },
+            },
+        },
+    ]);
+
+    if (orders.length === 0 || orders[0].totalPrice === undefined) {
+
+        return 0;
+    }
+
+    return orders[0].totalPrice;
+};
+
+
+
 
 export const UserServices = {
     createUserIntoDB,
@@ -102,5 +161,7 @@ export const UserServices = {
     singleUser,
     updateUser,
     deleteUser,
-    addProductToOrder
+    addProductToOrder,
+    ordersForSpecificUser,
+    calculatePrice
 }
