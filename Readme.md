@@ -48,7 +48,7 @@ npm start
 
 #### For Development:
 
-Run the application in development mode with automatic restarts on file changes:
+Run the application in development mode with automatic restarts on file changes using ts-node-dev:
 
 ```bash
 npm run dev
