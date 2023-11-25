@@ -35,7 +35,6 @@ const createUser = async (req: Request, res: Response) => {
 };
 
 // All users
-
 const allUsers = async (req: Request, res: Response) => {
   try {
     const result = await UserServices.allUsers();
@@ -65,7 +64,6 @@ const allUsers = async (req: Request, res: Response) => {
 };
 
 // Single user
-
 const singleUser = async (req: Request, res: Response) => {
   try {
     const userIdParam = req.params.userId;
@@ -148,7 +146,6 @@ const deleteUser = async (req: Request, res: Response) => {
 };
 
 // Order's controller
-
 const addProductToOrder = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.params.userId);
@@ -210,7 +207,6 @@ const ordersForSpecificUser = async (req: Request, res: Response) => {
 };
 
 // Calculate the price for a specific user of orders
-
 const calculatePrice = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.params.userId);

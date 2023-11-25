@@ -37,7 +37,6 @@ const singleUser = async (userId: number) => {
 };
 
 // Update users
-
 const updateUser = async (
   userId: number,
   userData: Partial<TUser>,
@@ -56,7 +55,6 @@ const updateUser = async (
 };
 
 // Delete user
-
 const deleteUser = async (userId: number) => {
   const result = await User.findOneAndDelete({ userId });
 
@@ -103,7 +101,6 @@ const addProductToOrder = async (
 };
 
 // Orders for specific users
-
 const ordersForSpecificUser = async (
   userId: number,
 ): Promise<TOrder[] | null> => {
@@ -117,7 +114,6 @@ const ordersForSpecificUser = async (
 };
 
 // Calculate the price for a specific user of orders
-
 const calculatePrice = async (userId: number): Promise<number | null> => {
   const user = await User.findOne({ userId });
   if (!user) {
