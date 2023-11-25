@@ -18,6 +18,11 @@ const allUsers = async () => {
   const result = await User.find().select(
     '-_id username fullName age email address',
   );
+
+  if (!result) {
+    throw new Error('User not found');
+  }
+
   return result;
 };
 
