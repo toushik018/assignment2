@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-
 const orderValidationSchema = z.object({
   productName: z.string(),
   price: z.number().positive(),
@@ -9,8 +8,11 @@ const orderValidationSchema = z.object({
 
 const userValidationSchema = z.object({
   userId: z.number(),
-  username: z.string().min(3).max(20, { message: "Must be 5 or more characters long"}),
-  password: z.string().min(8, { message: "Must be 8 or more characters long" }),
+  username: z
+    .string()
+    .min(3)
+    .max(20, { message: 'Must be 5 or more characters long' }),
+  password: z.string().min(8, { message: 'Must be 8 or more characters long' }),
   fullName: z.object({
     firstName: z.string(),
     lastName: z.string(),

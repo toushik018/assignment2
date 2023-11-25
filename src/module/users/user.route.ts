@@ -12,5 +12,4 @@ router.put('/:userId/orders', UserController.addProductToOrder);
 router.get('/:userId/orders', UserController.ordersForSpecificUser);
 router.get('/:userId/orders/total-price', UserController.calculatePrice);
 
-
 export const UserRoutes = router;
