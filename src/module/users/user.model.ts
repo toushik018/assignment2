@@ -84,6 +84,9 @@ userSchema.post('save', function (doc, next) {
 userSchema.methods.toJSON = function () {
   const userObject = this.toObject();
   delete userObject.password;
+  delete userObject._id;
+  delete userObject.orders;
+  delete userObject.__v;
   return userObject;
 };
 

@@ -47,11 +47,7 @@ const updateUser = async (
     select: '-_id -orders -__v',
   });
 
-  if (!result) {
-    throw new Error('User not found');
-  }
-
-  return result;
+  return result || null; 
 };
 
 // Delete user
@@ -103,14 +99,15 @@ const addProductToOrder = async (
 // Orders for specific users
 const ordersForSpecificUser = async (
   userId: number,
-): Promise<TOrder[] | null> => {
+): Promise<{ orders: TOrder[] } | null> => {
   const user = await User.findOne({ userId });
 
   if (!user) {
     throw new Error('User not found');
   }
 
-  return user?.orders || null;
+  const orders = user?.orders || [];
+  return { orders };
 };
 
 // Calculate the price for a specific user of orders

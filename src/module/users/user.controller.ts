@@ -2,11 +2,10 @@
 import { Request, Response } from 'express';
 import { UserServices } from './user.service';
 import userValidationSchema from './user.validation';
-import { z } from 'zod';
 
 const createUser = async (req: Request, res: Response) => {
   try {
-    const { user } = req.body;
+    const user = req.body;
     // Data validation using zod
     const validationData = userValidationSchema.parse(user);
 
@@ -17,20 +16,12 @@ const createUser = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err: any) {
-    if (err instanceof z.ZodError) {
-      const Error = err.format();
-      res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        error: Error,
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: err.message || 'Something went wrong',
-        error: err,
-      });
-    }
+    res.status(500).json({
+      success: false,
+      message: err.message || 'Something went wrong',
+      error: err,
+    });
+
   }
 };
 
@@ -40,7 +31,7 @@ const allUsers = async (req: Request, res: Response) => {
     const result = await UserServices.allUsers();
     res.status(200).json({
       success: true,
-      message: 'Users Retrived successfully',
+      message: 'Users fetched successfully',
       data: result,
     });
   } catch (err: any) {
@@ -103,19 +94,39 @@ const updateUser = async (req: Request, res: Response) => {
     const userData = req.body;
     const result = await UserServices.updateUser(userId, userData);
 
-    res.status(200).json({
-      success: true,
-      message: 'User updated successfully',
-      data: result,
-    });
+    if (result === null) {
+      res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          description: 'User not found!',
+        },
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: 'User updated successfully',
+        data: result,
+      });
+    }
   } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: err.message || 'Something went wrong',
-      error: err,
-    });
+    if (err.status) {
+      res.status(err.status).json({
+        success: false,
+        message: err.message,
+        error: err.error,
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Something went wrong',
+        error: err,
+      });
+    }
   }
 };
+
 
 // Delete user's controller
 const deleteUser = async (req: Request, res: Response) => {
@@ -179,12 +190,12 @@ const addProductToOrder = async (req: Request, res: Response) => {
 const ordersForSpecificUser = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.params.userId);
-    const orders = await UserServices.ordersForSpecificUser(userId);
+    const result = await UserServices.ordersForSpecificUser(userId);
 
     res.status(200).json({
       success: true,
       message: 'Order fetched successfully!',
-      data: orders,
+      data: result,
     });
   } catch (err: any) {
     if (err.message === 'User not found') {
@@ -205,6 +216,7 @@ const ordersForSpecificUser = async (req: Request, res: Response) => {
     }
   }
 };
+
 
 // Calculate the price for a specific user of orders
 const calculatePrice = async (req: Request, res: Response) => {
