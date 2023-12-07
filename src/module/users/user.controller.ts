@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express';
 import { UserServices } from './user.service';
-import userValidationSchema from './user.validation';
+import { userValidationSchema } from './user.validation';
 
 const createUser = async (req: Request, res: Response) => {
   try {
@@ -87,11 +87,16 @@ const singleUser = async (req: Request, res: Response) => {
   }
 };
 
-// Update user's controller
+// update users
+
 const updateUser = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.params.userId);
     const userData = req.body;
+
+    
+    delete userData.userId;
+
     const result = await UserServices.updateUser(userId, userData);
 
     if (result === null) {
@@ -128,6 +133,7 @@ const updateUser = async (req: Request, res: Response) => {
 };
 
 
+
 // Delete user's controller
 const deleteUser = async (req: Request, res: Response) => {
   try {
@@ -160,7 +166,7 @@ const deleteUser = async (req: Request, res: Response) => {
 const addProductToOrder = async (req: Request, res: Response) => {
   try {
     const userId = Number(req.params.userId);
-    const { orderData } = req.body;
+    const orderData = req.body;
 
     await UserServices.addProductToOrder(userId, orderData);
 

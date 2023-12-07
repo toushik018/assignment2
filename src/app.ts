@@ -17,4 +17,6 @@ app.get('/', (req: Request, res: Response) => {
     data: null,
   });
 });
+
+
 export default app;

@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import config from '../../app/config';
 import { TOrder, TUser } from './user.interface';
 import { User } from './user.model';
+import bcrypt from 'bcrypt'
 
 const createUserIntoDB = async (userData: TUser) => {
   // const result = await User.create(user);
@@ -36,19 +39,46 @@ const singleUser = async (userId: number) => {
   return result;
 };
 
+
+
+
 // Update users
 const updateUser = async (
   userId: number,
   userData: Partial<TUser>,
 ): Promise<TUser | null> => {
-  const result = await User.findOneAndUpdate({ userId: userId }, userData, {
-    new: true,
-    runValidators: true,
-    select: '-_id -orders -__v',
-  });
+  try {
+    const user = await User.findOne({ userId });
 
-  return result || null; 
+    if (!user) {
+      throw { status: 404, message: 'User not found' };
+    }
+    
+    if (userData.password) {
+      userData.password = await hashPassword(userData.password);
+    }
+
+    Object.assign(user, userData);
+
+    const result = await user.save();
+    return result || null;
+  } catch (error: any) {
+    if (error.status) {
+      throw error;
+    }
+
+    throw { status: 500, message: 'Failed to update user' };
+  }
 };
+
+
+
+const hashPassword = async (password: string): Promise<string> => {
+  return bcrypt.hash(password, Number(config.becrypt_salt));
+};
+
+
+
 
 // Delete user
 const deleteUser = async (userId: number) => {
